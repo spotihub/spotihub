@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SpotiHub.Api.Configuration.Auth;
 using SpotiHub.Core.Entity;
 using SpotiHub.Persistence.Context;
 
@@ -33,6 +34,8 @@ namespace SpotiHub.Api
         {
             services.AddControllers();
             services.AddHttpContextAccessor();
+
+            services.AddCommonDataProtection(Configuration);
             
             #region Identity
 
@@ -58,6 +61,9 @@ namespace SpotiHub.Api
 
             #region Auth
 
+            services.AddCommonCors();
+            services.AddCommonAuthentication(Configuration);
+            
             #endregion
             
             #region Healthcheks
@@ -80,9 +86,8 @@ namespace SpotiHub.Api
 
             app.UseRouting();
 
-            app.UseAuthentication();
-            
-            app.UseAuthorization();
+            app.UseCommonCors(Configuration);
+            app.UseCommonAuthentication();
 
             app.UseEndpoints(endpoints =>
             {

@@ -2,14 +2,19 @@
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.2.1" />
+        <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.1.0" />
+        <PackageReference Include="Azure.Identity" Version="1.5.0" />
         <PackageReference Include="Incremental.Common.Configuration" Version="3.0.0" />
         <PackageReference Include="Incremental.Common.Logging" Version="1.0.2" />
         <PackageReference Include="Incremental.Common.Sourcing" Version="2.0.4" />
         <PackageReference Include="Lamar.Diagnostics" Version="6.0.0" />
         <PackageReference Include="Lamar.Microsoft.DependencyInjection" Version="6.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.8" />
         <PackageReference Include="Octokit.GraphQL" Version="0.1.8-beta" />
         <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.2.2" />
     </ItemGroup>
