@@ -5,16 +5,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Incremental.Common.Configuration" Version="3.0.0" />
-      <PackageReference Include="Incremental.Common.Logging" Version="1.0.2" />
-      <PackageReference Include="Incremental.Common.Sourcing" Version="2.0.4" />
-      <PackageReference Include="Lamar.Diagnostics" Version="6.0.0" />
-      <PackageReference Include="Lamar.Microsoft.DependencyInjection" Version="6.0.0" />
-      <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.2.2" />
+        <PackageReference Include="Incremental.Common.Configuration" Version="3.0.0" />
+        <PackageReference Include="Incremental.Common.Logging" Version="1.0.2" />
+        <PackageReference Include="Incremental.Common.Sourcing" Version="2.0.4" />
+        <PackageReference Include="Lamar.Diagnostics" Version="6.0.0" />
+        <PackageReference Include="Lamar.Microsoft.DependencyInjection" Version="6.0.0" />
+        <PackageReference Include="Octokit.GraphQL" Version="0.1.8-beta" />
+        <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.2.2" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SpotiHub.Persistence\SpotiHub.Persistence.csproj" />
+        <ProjectReference Include="..\SpotiHub.Persistence\SpotiHub.Persistence.csproj" />
     </ItemGroup>
 
 </Project>
