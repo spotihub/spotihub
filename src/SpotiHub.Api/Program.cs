@@ -37,7 +37,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    var connectionString = builder.Configuration["IDENTITY_CONNECTION_STRING"];
+    var connectionString = builder.Configuration["CONNECTION_STRING"];
     options.UseNpgsql(connectionString, optionsBuilder =>
     {
         optionsBuilder

@@ -19,6 +19,6 @@ namespace SpotiHub.Persistence.Context
             builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         }
 
-        public DbSet<DataProtectionKey> DataProtectionKeys { get; }
+        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
     }
 }
