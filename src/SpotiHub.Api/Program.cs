@@ -8,6 +8,13 @@ using Lamar.Microsoft.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Octokit;
+using SpotiHub.Core.Application;
+using SpotiHub.Core.Application.Options;
+using SpotiHub.Core.Application.Services;
+using SpotiHub.Core.Application.Services.ApplicationUser;
+using SpotiHub.Core.Application.Services.GitHub;
 using SpotiHub.Core.Entity;
 using SpotiHub.Persistence.Context;
 
@@ -64,8 +71,36 @@ builder.Services.AddCommonDataProtection<ApplicationDbContext>(builder.Configura
 #region Authentication
 
 builder.Services.AddCors();
-builder.Services.AddCommonAuthentication(builder.Configuration);
+builder.Services.AddCommonAuthentication(builder.Configuration, options =>
+{
+    options.TokenValidationParameters.ValidateAudience = false;
+});
 builder.Services.AddJwtTokenService<ApplicationUser, ApplicationDbContext>();
+
+#endregion
+
+#region Integrations
+
+builder.Services.Configure<GitHubOptions>(options =>
+{
+    options.ClientId = builder.Configuration["GITHUB_CLIENT_ID"];
+    options.ClientSecret = builder.Configuration["GITHUB_CLIENT_SECRET"];
+    options.Name = "spotihub";
+});
+
+builder.Services.AddScoped<IGitHubClient, GitHubClient>(services =>
+{
+    var options = services.GetRequiredService<IOptions<GitHubOptions>>().Value;
+
+    return new GitHubClient(new ProductHeaderValue(options.Name));
+});
+
+#endregion
+
+#region Application
+
+builder.Services.AddScoped<IApplicationUserService, ApplicationUserService>();
+builder.Services.AddScoped<IGitHubAuthService, GitHubAuthService>();
 
 #endregion
 
