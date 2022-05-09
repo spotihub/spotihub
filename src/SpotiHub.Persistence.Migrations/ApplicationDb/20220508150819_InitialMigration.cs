@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
+#nullable disable
+
 namespace SpotiHub.Persistence.Migrations.ApplicationDb
 {
     public partial class InitialMigration : Migration
@@ -45,6 +47,20 @@ namespace SpotiHub.Persistence.Migrations.ApplicationDb
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DataProtectionKeys",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    FriendlyName = table.Column<string>(type: "text", nullable: true),
+                    Xml = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DataProtectionKeys", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -207,6 +223,9 @@ namespace SpotiHub.Persistence.Migrations.ApplicationDb
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "DataProtectionKeys");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
