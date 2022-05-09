@@ -1,11 +1,7 @@
 using Incremental.Common.Authentication.Jwt;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Octokit;
-using SpotiHub.Core.Application.Services;
 using SpotiHub.Core.Application.Services.ApplicationUser;
 using SpotiHub.Core.Application.Services.GitHub;
-using SpotiHub.Core.Entity;
 
 namespace SpotiHub.Api.Controllers;
 
