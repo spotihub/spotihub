@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Octokit;
+using SpotifyAPI.Web;
 using SpotiHub.Core.Application.Options;
 using SpotiHub.Core.Application.Services.ApplicationUser;
 using SpotiHub.Core.Application.Services.GitHub;
@@ -92,6 +93,23 @@ builder.Services.AddScoped<IGitHubClient, GitHubClient>(services =>
 
     return new GitHubClient(new ProductHeaderValue(options.Name));
 });
+
+builder.Services.Configure<SpotifyOptions>(options =>
+{
+    options.ClientId = builder.Configuration["SPOTIFY_CLIENT_ID"];
+    options.ClientSecret = builder.Configuration["SPOTIFY_CLIENT_SECRET"];
+    options.RedirectUrl = new Uri(builder.Configuration["JWT_TOKEN_ISSUER"]);
+});
+
+builder.Services.AddSingleton<SpotifyClientConfig, SpotifyClientConfig>(services => SpotifyClientConfig.CreateDefault());
+
+builder.Services.AddScoped<ISpotifyClient, SpotifyClient>(services =>
+{
+    var config = services.GetRequiredService<SpotifyClientConfig>();
+
+    return new SpotifyClient(config);
+});
+
 
 #endregion
 
