@@ -27,9 +27,9 @@ public class ApplicationUserService : IApplicationUserService
         
         if (applicationUser is null)
         {
-            await Create(gitHubUser, scopes);
+            await Create(gitHubUser, scopes, token);
         }
-        
+
         return await FindByLoginAsync();
 
         async Task<Entity.ApplicationUser?> FindByLoginAsync()
@@ -38,7 +38,7 @@ public class ApplicationUserService : IApplicationUserService
         }
     }
 
-    private async Task Create(User gitHubUser, IReadOnlyList<string> scopes)
+    private async Task Create(User gitHubUser, IReadOnlyList<string> scopes, string token)
     {
         var id = Guid.NewGuid().ToString();
 
@@ -59,6 +59,7 @@ public class ApplicationUserService : IApplicationUserService
         var userFound = await _userManager.FindByIdAsync(id);
 
         await _userManager.AddLoginAsync(userFound, new UserLoginInfo("github", gitHubUser.Id.ToString(), gitHubUser.Login));
+        await _userManager.AddLoginAsync(userFound, new UserLoginInfo("github:token", token, "github:token"));
 
         await _userManager.AddClaimsAsync(user, new[]
         {

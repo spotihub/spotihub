@@ -15,6 +15,9 @@ using SpotiHub.Core.Application.Options;
 using SpotiHub.Core.Application.Services.ApplicationUser;
 using SpotiHub.Core.Application.Services.GitHub;
 using SpotiHub.Core.Application.Services.Spotify;
+using SpotiHub.Core.Domain.Contract.Services;
+using SpotiHub.Core.Domain.Contract.Services.Options;
+using SpotiHub.Core.Domain.Services;
 using SpotiHub.Core.Entity;
 using SpotiHub.Persistence.Context;
 

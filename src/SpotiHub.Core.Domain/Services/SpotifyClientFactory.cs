@@ -4,19 +4,21 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SpotifyAPI.Web;
-using SpotiHub.Core.Application.Options;
+using SpotiHub.Core.Domain.Contract.Services;
+using SpotiHub.Core.Domain.Contract.Services.Options;
+using SpotiHub.Core.Entity;
 
-namespace SpotiHub.Core.Application.Services.Spotify;
+namespace SpotiHub.Core.Domain.Services;
 
 public class SpotifyClientFactory : ISpotifyClientFactory
 {
     private readonly ILogger<SpotifyClientFactory> _logger;
-    private readonly UserManager<Entity.ApplicationUser> _userManager;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly SpotifyClientConfig _defaultClientConfig;
     private readonly SpotifyOptions _options;
     private readonly IDistributedCache _distributedCache;
 
-    public SpotifyClientFactory(ILogger<SpotifyClientFactory> logger, UserManager<Entity.ApplicationUser> userManager, 
+    public SpotifyClientFactory(ILogger<SpotifyClientFactory> logger, UserManager<ApplicationUser> userManager, 
         SpotifyClientConfig defaultClientConfig, IOptions<SpotifyOptions> options, IDistributedCache distributedCache)
     {
         _logger = logger;
