@@ -62,10 +62,18 @@ public class SpotifyAuthService : ISpotifyAuthService
             _options.ClientSecret, code, _options.RedirectUrl));
 
         await _userManager.RemoveLoginAsync(user, "spotify", state);
-
+        
         await _userManager.AddLoginAsync(user, new UserLoginInfo("spotify:token", response.AccessToken, "spotify:token"));
         await _userManager.AddLoginAsync(user, new UserLoginInfo("spotify:refresh_token", response.RefreshToken, "spotify:refresh_token"));
 
         await _userManager.AddClaimsAsync(user, response.Scope.Split(',').Select(scope => new Claim("spotify:scope", scope)));
+
+        var client = await _spotifyClientFactory.GetClientAsync(user.Id, cancellationToken);
+
+        var profile = await client.UserProfile.Current();
+
+        await _userManager.AddLoginAsync(user, new UserLoginInfo("spotify", profile.Id, profile.DisplayName));
+
+        await _userManager.AddClaimAsync(user, new Claim("spotify:country", profile.Country));
     }
 }

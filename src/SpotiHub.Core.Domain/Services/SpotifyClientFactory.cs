@@ -35,24 +35,29 @@ public class SpotifyClientFactory : ISpotifyClientFactory
 
     public async Task<ISpotifyClient> GetClientAsync(string userId, CancellationToken cancellationToken = default)
     {
-        var cachedToken = await _distributedCache.GetStringAsync(userId, cancellationToken);
-        var token = JsonSerializer.Deserialize<AuthorizationCodeRefreshResponse>(cachedToken);
+        var auth = await GetCachedAuthOrDefaultAsync(userId, cancellationToken);
 
-        if (token is null)
+        if (auth is null)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-
-            var authClient = await GetAuthClientAsync(cancellationToken);
-
-            token = await authClient.RequestToken(await BuildRefreshRequest(user));
-
-            await CacheAndStoreTokensAsync(user, token);
+            auth = await GetNewAuthAsync(userId, cancellationToken);
         }
 
-        return new SpotifyClient(_defaultClientConfig.WithToken(token.AccessToken));
+        return new SpotifyClient(_defaultClientConfig.WithToken(auth.AccessToken));
     }
 
-    private async Task CacheAndStoreTokensAsync(Entity.ApplicationUser user, AuthorizationCodeRefreshResponse token)
+    private async Task<AuthorizationCodeRefreshResponse?> GetCachedAuthOrDefaultAsync(string user, CancellationToken cancellationToken = default)
+    { 
+        var cachedToken = await _distributedCache.GetStringAsync(user, cancellationToken);
+
+        if (cachedToken is null)
+        {
+            return default;
+        }
+        
+        return JsonSerializer.Deserialize<AuthorizationCodeRefreshResponse>(cachedToken);
+    }
+    
+    private async Task CacheAndStoreTokensAsync(ApplicationUser user, AuthorizationCodeRefreshResponse token)
     {
         var serializedToken = JsonSerializer.Serialize(token);
         var cacheEntryOptions = new DistributedCacheEntryOptions()
@@ -63,7 +68,20 @@ public class SpotifyClientFactory : ISpotifyClientFactory
         await _userManager.AddLoginAsync(user, new UserLoginInfo("spotify:refresh_token", token.RefreshToken, "spotify:refresh_token"));
     }
 
-    private async Task<AuthorizationCodeRefreshRequest> BuildRefreshRequest(Entity.ApplicationUser user)
+    private async Task<AuthorizationCodeRefreshResponse> GetNewAuthAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        var authClient = await GetAuthClientAsync(cancellationToken);
+
+        var token = await authClient.RequestToken(await BuildRefreshRequest(user, cancellationToken));
+
+        await CacheAndStoreTokensAsync(user, token);
+
+        return token;
+    }
+
+    private async Task<AuthorizationCodeRefreshRequest> BuildRefreshRequest(ApplicationUser user, CancellationToken cancellationToken = default)
     {
         var logins = await _userManager.GetLoginsAsync(user);
 
