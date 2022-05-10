@@ -14,6 +14,7 @@ using SpotifyAPI.Web;
 using SpotiHub.Core.Application.Options;
 using SpotiHub.Core.Application.Services.ApplicationUser;
 using SpotiHub.Core.Application.Services.GitHub;
+using SpotiHub.Core.Application.Services.Spotify;
 using SpotiHub.Core.Entity;
 using SpotiHub.Persistence.Context;
 
@@ -22,6 +23,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddCommonConfiguration();
 builder.Host.UseCommonLogging();
 builder.Host.UseLamar();
+
+builder.Services.AddDistributedMemoryCache();
 
 #region API Configuration
 
@@ -98,17 +101,12 @@ builder.Services.Configure<SpotifyOptions>(options =>
 {
     options.ClientId = builder.Configuration["SPOTIFY_CLIENT_ID"];
     options.ClientSecret = builder.Configuration["SPOTIFY_CLIENT_SECRET"];
-    options.RedirectUrl = new Uri(builder.Configuration["JWT_TOKEN_ISSUER"]);
+    options.RedirectUrl = new Uri($"{builder.Configuration["JWT_TOKEN_ISSUER"]}/api/integration/spotify/authorize");
 });
 
 builder.Services.AddSingleton<SpotifyClientConfig, SpotifyClientConfig>(services => SpotifyClientConfig.CreateDefault());
 
-builder.Services.AddScoped<ISpotifyClient, SpotifyClient>(services =>
-{
-    var config = services.GetRequiredService<SpotifyClientConfig>();
-
-    return new SpotifyClient(config);
-});
+builder.Services.AddScoped<ISpotifyClientFactory, SpotifyClientFactory>();
 
 
 #endregion
@@ -117,6 +115,7 @@ builder.Services.AddScoped<ISpotifyClient, SpotifyClient>(services =>
 
 builder.Services.AddScoped<IApplicationUserService, ApplicationUserService>();
 builder.Services.AddScoped<IGitHubAuthService, GitHubAuthService>();
+builder.Services.AddScoped<ISpotifyAuthService, SpotifyAuthService>();
 
 #endregion
 
