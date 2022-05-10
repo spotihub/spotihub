@@ -44,12 +44,21 @@ public class SpotifyClientFactory : ISpotifyClientFactory
 
             token = await authClient.RequestToken(await BuildRefreshRequest(user));
 
-            await _distributedCache.SetStringAsync(userId, JsonSerializer.Serialize(token), token: cancellationToken);
-
-            await _userManager.AddLoginAsync(user, new UserLoginInfo("spotify:refresh_token", token.RefreshToken, "spotify:refresh_token"));
+            await CacheAndStoreTokensAsync(user, token);
         }
 
         return new SpotifyClient(_defaultClientConfig.WithToken(token.AccessToken));
+    }
+
+    private async Task CacheAndStoreTokensAsync(Entity.ApplicationUser user, AuthorizationCodeRefreshResponse token)
+    {
+        var serializedToken = JsonSerializer.Serialize(token);
+        var cacheEntryOptions = new DistributedCacheEntryOptions()
+            .SetAbsoluteExpiration(TimeSpan.FromSeconds(token.ExpiresIn).Subtract(TimeSpan.FromMinutes(5)));
+        
+        await _distributedCache.SetStringAsync(user.Id, serializedToken, cacheEntryOptions);
+
+        await _userManager.AddLoginAsync(user, new UserLoginInfo("spotify:refresh_token", token.RefreshToken, "spotify:refresh_token"));
     }
 
     private async Task<AuthorizationCodeRefreshRequest> BuildRefreshRequest(Entity.ApplicationUser user)
