@@ -10,18 +10,17 @@ namespace SpotiHub.Core.Application.Services.Spotify;
 public class SpotifyAuthService : ISpotifyAuthService
 {
     private readonly ILogger<SpotifyAuthService> _logger;
-    private readonly ISpotifyClient _spotifyClient;
-    private readonly SpotifyOptions _options;
-    private readonly SpotifyClientConfig _spotifyClientConfig;
     private readonly UserManager<Entity.ApplicationUser> _userManager;
+    private readonly ISpotifyClientFactory _spotifyClientFactory;
+    private readonly SpotifyOptions _options;
 
-    public SpotifyAuthService(ILogger<SpotifyAuthService> logger, ISpotifyClient spotifyClient, IOptions<SpotifyOptions> options,
-        SpotifyClientConfig spotifyClientConfig, UserManager<Entity.ApplicationUser> userManager)
+
+    public SpotifyAuthService(ILogger<SpotifyAuthService> logger, UserManager<Entity.ApplicationUser> userManager, 
+        ISpotifyClientFactory spotifyClientFactory, IOptions<SpotifyOptions> options)
     {
         _logger = logger;
-        _spotifyClient = spotifyClient;
-        _spotifyClientConfig = spotifyClientConfig;
         _userManager = userManager;
+        _spotifyClientFactory = spotifyClientFactory;
         _options = options.Value;
     }
 
@@ -54,13 +53,11 @@ public class SpotifyAuthService : ISpotifyAuthService
         {
             return;
         }
+
+        var authClient = await _spotifyClientFactory.GetAuthClientAsync(cancellationToken);
         
-        var response = await new OAuthClient(_spotifyClientConfig)
-            .RequestToken(new AuthorizationCodeTokenRequest(
-                _options.ClientId,
-                _options.ClientSecret,
-                code,
-                _options.RedirectUrl));
+        var response = await authClient.RequestToken(new AuthorizationCodeTokenRequest(_options.ClientId,
+            _options.ClientSecret, code, _options.RedirectUrl));
 
         await _userManager.RemoveLoginAsync(user, "spotify", state);
 
