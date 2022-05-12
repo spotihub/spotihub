@@ -40,6 +40,6 @@ public class IntegrationController : ControllerBase
     {
         await _spotifyAuthService.AuthorizeAsync(code, state, cancellationToken);
         
-        return Redirect($"{_configuration["SPA_BASE_URI"]}");
+        return Redirect($"{_configuration["SPA_BASE_URI"]}/login/refresh");
     }
 }
