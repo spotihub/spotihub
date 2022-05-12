@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Octokit;
+using SpotiHub.Infrastructure.Contract.Services;
 using SpotiHub.Infrastructure.Contract.Services.Options;
 
 namespace SpotiHub.Core.Application.Services.ApplicationUser;
@@ -17,21 +18,23 @@ public class ApplicationUserService : IApplicationUserService
 {
     private readonly ILogger<ApplicationUserService> _logger;
     private readonly UserManager<Entity.ApplicationUser> _userManager;
-    private readonly IGitHubClient _gitHubClient;
+    private readonly IGitHubClientFactory _gitHubClientFactory;
     private readonly GitHubOptions _options;
 
     public ApplicationUserService(ILogger<ApplicationUserService> logger, UserManager<Entity.ApplicationUser> userManager, 
-        IGitHubClient gitHubClient, IOptions<GitHubOptions> options)
+        IGitHubClientFactory gitHubClientFactory, IOptions<GitHubOptions> options)
     {
         _logger = logger;
         _userManager = userManager;
-        _gitHubClient = gitHubClient;
+        _gitHubClientFactory = gitHubClientFactory;
         _options = options.Value;
     }
 
-    public string GetLoginUrl(CancellationToken cancellationToken = default)
+    public async Task<string> GetLoginUrl(CancellationToken cancellationToken = default)
     {
-        return _gitHubClient.Oauth.GetGitHubLoginUrl(new OauthLoginRequest(_options.ClientId)
+        var client = await _gitHubClientFactory.GetGitHubClientAsync();
+        
+        return client.Oauth.GetGitHubLoginUrl(new OauthLoginRequest(_options.ClientId)
         {
             Scopes = { "user" }
         }).ToString();
@@ -111,16 +114,13 @@ public class ApplicationUserService : IApplicationUserService
 
         await _userManager.AddClaimAsync(user, new Claim("github:token", token));
     }
-
-    private async Task CreateApplicationUserAsync(User gitHubUser, IReadOnlyList<string> scopes, string token)
-    {
-
-    }
-
+    
     private async Task<OauthToken?> GetTokenFromGitHubAsync(string code, string? state, CancellationToken cancellationToken = default)
     {
+        var client = await _gitHubClientFactory.GetGitHubClientAsync(cancellationToken: cancellationToken);
+
         var request = new OauthTokenRequest(_options.ClientId, _options.ClientSecret, code);
-        var response = await _gitHubClient.Oauth.CreateAccessToken(request);
+        var response = await client.Oauth.CreateAccessToken(request);
 
         return response is not null && string.IsNullOrWhiteSpace(response.Error) 
             ? response 
@@ -129,8 +129,10 @@ public class ApplicationUserService : IApplicationUserService
     
     private async Task<User> GetGitHubProfileAsync(string token, CancellationToken cancellationToken = default)
     {
-        _gitHubClient.Connection.Credentials = new Credentials(token);
+        var client = await _gitHubClientFactory.GetGitHubClientAsync(cancellationToken: cancellationToken);
 
-        return await _gitHubClient.User.Current();
+        client.Connection.Credentials = new Credentials(token);
+
+        return await client.User.Current();
     }
 }
