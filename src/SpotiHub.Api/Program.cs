@@ -13,7 +13,6 @@ using Octokit;
 using SpotifyAPI.Web;
 using SpotiHub.Core.Application.Options;
 using SpotiHub.Core.Application.Services.ApplicationUser;
-using SpotiHub.Core.Application.Services.GitHub;
 using SpotiHub.Core.Application.Services.Spotify;
 using SpotiHub.Core.Domain.Contract.Services;
 using SpotiHub.Core.Domain.Contract.Services.Options;
@@ -117,7 +116,6 @@ builder.Services.AddScoped<ISpotifyClientFactory, SpotifyClientFactory>();
 #region Application
 
 builder.Services.AddScoped<IApplicationUserService, ApplicationUserService>();
-builder.Services.AddScoped<IGitHubAuthService, GitHubAuthService>();
 builder.Services.AddScoped<ISpotifyAuthService, SpotifyAuthService>();
 
 #endregion
