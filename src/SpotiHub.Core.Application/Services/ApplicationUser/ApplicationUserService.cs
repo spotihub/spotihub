@@ -1,8 +1,10 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Octokit;
+using SpotiHub.Core.Application.Options;
 
 namespace SpotiHub.Core.Application.Services.ApplicationUser;
 
@@ -11,67 +13,116 @@ public class ApplicationUserService : IApplicationUserService
     private readonly ILogger<ApplicationUserService> _logger;
     private readonly UserManager<Entity.ApplicationUser> _userManager;
     private readonly IGitHubClient _gitHubClient;
+    private readonly GitHubOptions _options;
 
-    public ApplicationUserService(ILogger<ApplicationUserService> logger, UserManager<Entity.ApplicationUser> userManager, IGitHubClient gitHubClient)
+    public ApplicationUserService(ILogger<ApplicationUserService> logger, UserManager<Entity.ApplicationUser> userManager, 
+        IGitHubClient gitHubClient, IOptions<GitHubOptions> options)
     {
         _logger = logger;
         _userManager = userManager;
         _gitHubClient = gitHubClient;
+        _options = options.Value;
     }
 
-    public async Task<Entity.ApplicationUser?> GetOrCreate(string token, IReadOnlyList<string> scopes, CancellationToken cancellationToken = default)
+    public string GetLoginUrl(CancellationToken cancellationToken = default)
     {
-        var gitHubUser = await GetGitHubUser(token, cancellationToken);
-
-        var applicationUser = await FindByLoginAsync();
-        
-        if (applicationUser is null)
+        return _gitHubClient.Oauth.GetGitHubLoginUrl(new OauthLoginRequest(_options.ClientId)
         {
-            await Create(gitHubUser, scopes, token);
-        }
-
-        return await FindByLoginAsync();
-
-        async Task<Entity.ApplicationUser?> FindByLoginAsync()
-        {
-            return await _userManager.FindByLoginAsync("github", gitHubUser.Id.ToString());
-        }
+            Scopes = { "user" }
+        }).ToString();
     }
 
-    private async Task Create(User gitHubUser, IReadOnlyList<string> scopes, string token)
+    public async Task<Entity.ApplicationUser?> AuthorizeAsync(string code, string? state = default, CancellationToken cancellationToken = default)
     {
-        var id = Guid.NewGuid().ToString();
+        var token = await GetTokenFromGitHubAsync(code, state, cancellationToken);
 
-        var user = new Entity.ApplicationUser
+        if (token is null)
         {
-            Id = id,
-            UserName = gitHubUser.Login,
-            Email = gitHubUser.Email,
-        };
-        
-        var result = await _userManager.CreateAsync(user);
-
-        if (!result.Succeeded)
-        {
-            throw new Exception();
+            return default;
         }
         
-        var userFound = await _userManager.FindByIdAsync(id);
+        var profile = await GetGitHubProfileAsync(token.AccessToken, cancellationToken);
 
-        await _userManager.AddLoginAsync(userFound, new UserLoginInfo("github", gitHubUser.Id.ToString(), gitHubUser.Login));
-        await _userManager.AddLoginAsync(userFound, new UserLoginInfo("github:token", token, "github:token"));
+        var user = await _userManager.FindByLoginAsync("github", profile.Id.ToString());
+        
+        if (user is null)
+        {
+            user = await CreateUserAsync(profile.Id, profile.Login, profile.Email);
+        }
+        
+        await StoreOrReplaceGitHubScopesAsync(user, token.Scope);
+        await StoreOrReplaceGitHubTokenAsync(user, token.AccessToken);
 
+        return user;
+    }
+
+    private async Task<Entity.ApplicationUser> CreateUserAsync(int externalId, string username, string email)
+    {
+        var id = await Create();
+        
+        var user = await _userManager.FindByIdAsync(id);
+        
+        await _userManager.AddLoginAsync(user, new UserLoginInfo("github", externalId.ToString(), username));
+        
         await _userManager.AddClaimsAsync(user, new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
             new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(ClaimTypes.Email, user.Email),
+            new Claim("github:id", externalId.ToString())
         });
         
-        await _userManager.AddClaimsAsync(userFound, scopes.Select(scope => new Claim("github:scope", scope)));
+        return user;
+        
+        async Task<string> Create()
+        {
+            var temp = new Entity.ApplicationUser
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserName = username,
+                Email = email,
+            };
+            var result = await _userManager.CreateAsync(temp);
+
+            if (!result.Succeeded)
+            {
+                throw new Exception();
+            }
+
+            return temp.Id;
+        }
     }
 
-    private async Task<User> GetGitHubUser(string token, CancellationToken cancellationToken = default)
+    private async Task StoreOrReplaceGitHubScopesAsync(Entity.ApplicationUser user, IEnumerable<string> scopes)
+    {
+        await _userManager.RemoveClaimsAsync(user, (await _userManager.GetClaimsAsync(user)).Where(claim => claim.Type == "github:scope"));
+        
+        await _userManager.AddClaimsAsync(user, scopes.Select(scope => new Claim("github:scope", scope)));
+    }
+    
+    private async Task StoreOrReplaceGitHubTokenAsync(Entity.ApplicationUser user, string token)
+    {
+        await _userManager.RemoveClaimsAsync(user, (await _userManager.GetClaimsAsync(user)).Where(claim => claim.Type == "github:token"));
+
+        await _userManager.AddClaimAsync(user, new Claim("github:token", token));
+    }
+
+    private async Task CreateApplicationUserAsync(User gitHubUser, IReadOnlyList<string> scopes, string token)
+    {
+
+    }
+
+    private async Task<OauthToken?> GetTokenFromGitHubAsync(string code, string? state, CancellationToken cancellationToken = default)
+    {
+        var request = new OauthTokenRequest(_options.ClientId, _options.ClientSecret, code);
+        var response = await _gitHubClient.Oauth.CreateAccessToken(request);
+
+        return response is not null && string.IsNullOrWhiteSpace(response.Error) 
+            ? response 
+            : default;
+    }
+    
+    private async Task<User> GetGitHubProfileAsync(string token, CancellationToken cancellationToken = default)
     {
         _gitHubClient.Connection.Credentials = new Credentials(token);
 

@@ -2,5 +2,6 @@ namespace SpotiHub.Core.Application.Services.ApplicationUser;
 
 public interface IApplicationUserService
 {
-    public Task<Entity.ApplicationUser?> GetOrCreate(string token, IReadOnlyList<string> scopes, CancellationToken cancellationToken = default);
+    string GetLoginUrl(CancellationToken cancellationToken = default);
+    public Task<Entity.ApplicationUser?> AuthorizeAsync(string token, string? state = default, CancellationToken cancellationToken = default);
 }
