@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Octokit.GraphQL;
 using Octokit.GraphQL.Core;
 using Octokit.GraphQL.Model;
@@ -5,7 +8,7 @@ using Quartz;
 using SpotifyAPI.Web;
 using SpotiHub.Infrastructure.Contract.Services;
 
-namespace SpotiHub.Core.Domain.Jobs;
+namespace SpotiHub.Core.Application.Jobs;
 
 [DisallowConcurrentExecution]
 public class UpdateGitHubStatusJob : IJob
@@ -29,22 +32,31 @@ public class UpdateGitHubStatusJob : IJob
 
         if (data.IsPlaying)
         {
-            var trackName = data.Item switch
-            {
-                FullTrack track => track.Name,
-                FullEpisode episode => episode.Name,
-                _ => string.Empty
-            };
-
-            var action = new Mutation().ChangeUserStatus(
-                new Arg<ChangeUserStatusInput>(new ChangeUserStatusInput
+            var info = GetTrackInfo(data.Item);
+            
+            var action = new Mutation().ChangeUserStatus(new ChangeUserStatusInput
                 {
-                    Message = $"Currently listening to {trackName}!"
-                }));
+                    Message = $"Currently listening to {info.Name} by {info.Artist}!",
+                    Emoji = "🎶",
+                    ExpiresAt = default,
+                    LimitedAvailability = false,
+                    OrganizationId = default,
+                    ClientMutationId = Guid.NewGuid().ToString()
+                }).Select(payload => new { payload.Status.UpdatedAt });
 
             var github = await _gitHubClientFactory.GetConnectionAsync(user);
 
             await github.Run(action);
         }
+    }
+
+    public (string Name, string Artist) GetTrackInfo(IPlayableItem item)
+    {
+        return item switch
+        {
+            FullTrack track => (track.Name, track.Artists.First().Name),
+            FullEpisode episode => (episode.Name, episode.Show.Name),
+            _ => default
+        };
     }
 }
