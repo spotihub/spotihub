@@ -9,8 +9,11 @@ using Lamar.Microsoft.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Quartz;
 using SpotifyAPI.Web;
+using SpotiHub.Core.Application.Services;
 using SpotiHub.Core.Application.Services.ApplicationUser;
+using SpotiHub.Core.Application.Services.Scheduler;
 using SpotiHub.Core.Application.Services.Spotify;
 using SpotiHub.Core.Entity;
 using SpotiHub.Infrastructure.Contract.Services;
@@ -82,7 +85,35 @@ builder.Services.AddJwtTokenService<ApplicationUser, ApplicationDbContext>();
 
 #endregion
 
-#region Integrations
+#region Scheduler
+builder.Services.AddQuartz(configurator =>
+{
+    configurator.UseMicrosoftDependencyInjectionJobFactory();
+    configurator.UseDefaultThreadPool(tp =>
+    {
+        tp.MaxConcurrency = 25;
+    });
+});
+
+// ASP.NET Core hosting
+builder.Services.AddQuartzServer(options =>
+{
+    options.WaitForJobsToComplete = true;
+});
+
+#endregion
+
+#region Application
+
+builder.Services.AddScoped<IApplicationUserService, ApplicationUserService>();
+builder.Services.AddScoped<ISpotifyAuthService, SpotifyAuthService>();
+builder.Services.AddScoped<ISchedulerService, SchedulerService>();
+
+builder.Services.AddHostedService<JobBootstrapperHostedService>();
+
+#endregion
+
+#region Infrastructure
 
 builder.Services.Configure<GitHubOptions>(options =>
 {
@@ -102,14 +133,6 @@ builder.Services.AddSingleton<SpotifyClientConfig, SpotifyClientConfig>(services
 
 builder.Services.AddScoped<ISpotifyClientFactory, SpotifyClientFactory>();
 builder.Services.AddScoped<IGitHubClientFactory, GitHubClientFactory>();
-
-
-#endregion
-
-#region Application
-
-builder.Services.AddScoped<IApplicationUserService, ApplicationUserService>();
-builder.Services.AddScoped<ISpotifyAuthService, SpotifyAuthService>();
 
 #endregion
 
