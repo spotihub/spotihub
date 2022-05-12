@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Incremental.Common.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,11 @@ public class ProfileController : ControllerBase
         return Ok(new
         {
             Id = User.GetId(),
-            Username = User.GetUsername()
+            Username = User.GetUsername(),
+            Integrations = new
+            {
+                Spotify = User.FindFirstValue("spotify") ?? default
+            }
         });
     }
 }
