@@ -1,4 +1,4 @@
-namespace SpotiHub.Core.Application.Options;
+namespace SpotiHub.Core.Domain.Contract.Services.Options;
 
 public class GitHubOptions
 {

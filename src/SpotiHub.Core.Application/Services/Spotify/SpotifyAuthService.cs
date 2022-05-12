@@ -10,7 +10,6 @@ using Microsoft.Extensions.Options;
 using SpotifyAPI.Web;
 using SpotiHub.Core.Application.Events;
 using SpotiHub.Core.Application.Events.Contracts;
-using SpotiHub.Core.Application.Options;
 using SpotiHub.Core.Domain.Contract.Services;
 using SpotiHub.Core.Domain.Contract.Services.Options;
 

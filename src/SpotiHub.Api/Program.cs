@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Octokit;
 using SpotifyAPI.Web;
-using SpotiHub.Core.Application.Options;
 using SpotiHub.Core.Application.Services.ApplicationUser;
 using SpotiHub.Core.Application.Services.Spotify;
 using SpotiHub.Core.Domain.Contract.Services;
