@@ -4,5 +4,5 @@ namespace SpotiHub.Core.Entity;
 
 public class ApplicationUser : IdentityUser
 {
-        
+    public Options Options { get; set; }
 }
