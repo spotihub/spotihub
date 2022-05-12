@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Distributed;
@@ -56,17 +57,6 @@ public class SpotifyClientFactory : ISpotifyClientFactory
         
         return JsonSerializer.Deserialize<AuthorizationCodeRefreshResponse>(cachedToken);
     }
-    
-    private async Task CacheAndStoreTokensAsync(ApplicationUser user, AuthorizationCodeRefreshResponse token)
-    {
-        var serializedToken = JsonSerializer.Serialize(token);
-        var cacheEntryOptions = new DistributedCacheEntryOptions()
-            .SetAbsoluteExpiration(TimeSpan.FromSeconds(token.ExpiresIn).Subtract(TimeSpan.FromMinutes(5)));
-        
-        await _distributedCache.SetStringAsync(user.Id, serializedToken, cacheEntryOptions);
-
-        await _userManager.AddLoginAsync(user, new UserLoginInfo("spotify:refresh_token", token.RefreshToken, "spotify:refresh_token"));
-    }
 
     private async Task<AuthorizationCodeRefreshResponse> GetNewAuthAsync(string userId, CancellationToken cancellationToken = default)
     {
@@ -83,12 +73,29 @@ public class SpotifyClientFactory : ISpotifyClientFactory
 
     private async Task<AuthorizationCodeRefreshRequest> BuildRefreshRequest(ApplicationUser user, CancellationToken cancellationToken = default)
     {
-        var logins = await _userManager.GetLoginsAsync(user);
+        var claim = (await _userManager.GetClaimsAsync(user)).First(claim => claim.Type == "spotify:refresh_token");
 
-        var refreshToken = logins.First(login => login.LoginProvider == "spotify:refresh_token").ProviderKey;
+        if (claim is null)
+        {
+            throw new Exception();
+        }
 
-        await _userManager.RemoveLoginAsync(user, "spotify:refresh_token", refreshToken);
-
-        return new AuthorizationCodeRefreshRequest(_options.ClientId, _options.ClientSecret, refreshToken);
+        return new AuthorizationCodeRefreshRequest(_options.ClientId, _options.ClientSecret, claim.Value);
+    }
+    
+    private async Task CacheAndStoreTokensAsync(ApplicationUser user, AuthorizationCodeRefreshResponse token)
+    {
+        if (!string.IsNullOrWhiteSpace(token.RefreshToken))
+        {
+            var claim = (await _userManager.GetClaimsAsync(user)).First(claim => claim.Type == "spotify:refresh_token");
+            await _userManager.RemoveClaimAsync(user, claim);
+            
+            await _userManager.AddClaimAsync(user, new Claim("spotify:refresh_token", token.RefreshToken));
+        }
+        var serializedToken = JsonSerializer.Serialize(token);
+        var cacheEntryOptions = new DistributedCacheEntryOptions()
+            .SetAbsoluteExpiration(TimeSpan.FromSeconds(token.ExpiresIn).Subtract(TimeSpan.FromMinutes(5)));
+        
+        await _distributedCache.SetStringAsync(user.Id, serializedToken, cacheEntryOptions);
     }
 }
