@@ -11,12 +11,12 @@ using SpotiHub.Infrastructure.Contract.Services;
 namespace SpotiHub.Core.Application.Jobs;
 
 [DisallowConcurrentExecution]
-public class UpdateGitHubStatusJob : IJob
+public class UpdateStatusJob : IJob
 {
     private readonly ISpotifyClientFactory _spotifyClientFactory;
     private readonly IGitHubClientFactory _gitHubClientFactory;
 
-    public UpdateGitHubStatusJob(ISpotifyClientFactory spotifyClientFactory, IGitHubClientFactory gitHubClientFactory)
+    public UpdateStatusJob(ISpotifyClientFactory spotifyClientFactory, IGitHubClientFactory gitHubClientFactory)
     {
         _spotifyClientFactory = spotifyClientFactory;
         _gitHubClientFactory = gitHubClientFactory;

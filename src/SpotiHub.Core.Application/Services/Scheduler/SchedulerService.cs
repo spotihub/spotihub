@@ -27,7 +27,7 @@ public class SchedulerService : ISchedulerService
             await scheduler.DeleteJob(key, cancellationToken);
         }
         
-        var job = JobBuilder.Create<UpdateGitHubStatusJob>()
+        var job = JobBuilder.Create<UpdateStatusJob>()
             .WithIdentity($"job{user}")
             .UsingJobData("user", user)
             .Build();
