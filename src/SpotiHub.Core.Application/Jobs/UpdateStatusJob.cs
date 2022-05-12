@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Octokit.GraphQL;
-using Octokit.GraphQL.Core;
 using Octokit.GraphQL.Model;
 using Quartz;
 using SpotifyAPI.Web;
