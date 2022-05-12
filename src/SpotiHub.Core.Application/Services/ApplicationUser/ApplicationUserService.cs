@@ -89,6 +89,7 @@ public class ApplicationUserService : IApplicationUserService
                 Id = Guid.NewGuid().ToString(),
                 UserName = username,
                 Email = email,
+                Options = new Entity.Options()
             };
             var result = await _userManager.CreateAsync(temp);
 
