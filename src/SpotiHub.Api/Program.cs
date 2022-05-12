@@ -3,6 +3,7 @@ using Incremental.Common.Authentication;
 using Incremental.Common.Authentication.Jwt;
 using Incremental.Common.Configuration;
 using Incremental.Common.Logging;
+using Incremental.Common.Sourcing;
 using Lamar.Diagnostics;
 using Lamar.Microsoft.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
@@ -27,6 +28,7 @@ builder.Host.UseCommonLogging();
 builder.Host.UseLamar();
 
 builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSourcing(AppDomain.CurrentDomain.GetAssemblies());
 
 #region API Configuration
 
