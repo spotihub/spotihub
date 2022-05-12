@@ -1,16 +1,14 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Octokit;
-using Octokit.GraphQL;
-using SpotiHub.Core.Domain.Contract.Services;
-using SpotiHub.Core.Domain.Contract.Services.Options;
 using SpotiHub.Core.Entity;
+using SpotiHub.Infrastructure.Contract.Services;
+using SpotiHub.Infrastructure.Contract.Services.Options;
 using Connection = Octokit.GraphQL.Connection;
 using ProductHeaderValue = Octokit.GraphQL.ProductHeaderValue;
 
-namespace SpotiHub.Core.Domain.Services;
+namespace SpotiHub.Infrastructure.Services;
 
 public class GitHubClientFactory : IGitHubClientFactory
 {

@@ -9,15 +9,13 @@ using Lamar.Microsoft.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Octokit;
 using SpotifyAPI.Web;
 using SpotiHub.Core.Application.Services.ApplicationUser;
 using SpotiHub.Core.Application.Services.Spotify;
-using SpotiHub.Core.Domain.Contract.Services;
-using SpotiHub.Core.Domain.Contract.Services.Options;
-using SpotiHub.Core.Domain.Services;
 using SpotiHub.Core.Entity;
+using SpotiHub.Infrastructure.Contract.Services;
+using SpotiHub.Infrastructure.Contract.Services.Options;
+using SpotiHub.Infrastructure.Services;
 using SpotiHub.Persistence.Context;
 
 var builder = WebApplication.CreateBuilder(args);

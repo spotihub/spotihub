@@ -8,10 +8,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SpotifyAPI.Web;
-using SpotiHub.Core.Application.Events;
 using SpotiHub.Core.Application.Events.Contracts;
-using SpotiHub.Core.Domain.Contract.Services;
-using SpotiHub.Core.Domain.Contract.Services.Options;
+using SpotiHub.Infrastructure.Contract.Services;
+using SpotiHub.Infrastructure.Contract.Services.Options;
 
 namespace SpotiHub.Core.Application.Services.Spotify;
 

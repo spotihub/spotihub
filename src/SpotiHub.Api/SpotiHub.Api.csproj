@@ -28,6 +28,8 @@
         <ProjectReference Include="..\SpotiHub.Core.Application\SpotiHub.Core.Application.csproj" />
         <ProjectReference Include="..\SpotiHub.Core.Domain.Contract\SpotiHub.Core.Domain.Contract.csproj" />
         <ProjectReference Include="..\SpotiHub.Core.Domain\SpotiHub.Core.Domain.csproj" />
+        <ProjectReference Include="..\SpotiHub.Infrastructure.Contract\SpotiHub.Infrastructure.Contract.csproj" />
+        <ProjectReference Include="..\SpotiHub.Infrastructure\SpotiHub.Infrastructure.csproj" />
         <ProjectReference Include="..\SpotiHub.Persistence.Migrations\SpotiHub.Persistence.Migrations.csproj" />
         <ProjectReference Include="..\SpotiHub.Persistence\SpotiHub.Persistence.csproj" />
     </ItemGroup>

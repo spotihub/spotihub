@@ -5,11 +5,11 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SpotifyAPI.Web;
-using SpotiHub.Core.Domain.Contract.Services;
-using SpotiHub.Core.Domain.Contract.Services.Options;
 using SpotiHub.Core.Entity;
+using SpotiHub.Infrastructure.Contract.Services;
+using SpotiHub.Infrastructure.Contract.Services.Options;
 
-namespace SpotiHub.Core.Domain.Services;
+namespace SpotiHub.Infrastructure.Services;
 
 public class SpotifyClientFactory : ISpotifyClientFactory
 {

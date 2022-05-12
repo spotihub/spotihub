@@ -8,6 +8,7 @@
     <ItemGroup>
         <ProjectReference Include="..\SpotiHub.Core.Domain.Contract\SpotiHub.Core.Domain.Contract.csproj" />
         <ProjectReference Include="..\SpotiHub.Core.Entity\SpotiHub.Core.Entity.csproj" />
+        <ProjectReference Include="..\SpotiHub.Infrastructure.Contract\SpotiHub.Infrastructure.Contract.csproj" />
     </ItemGroup>
 
     <ItemGroup>

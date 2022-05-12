@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Octokit;
-using SpotiHub.Core.Domain.Contract.Services.Options;
+using SpotiHub.Infrastructure.Contract.Services.Options;
 
 namespace SpotiHub.Core.Application.Services.ApplicationUser;
 
