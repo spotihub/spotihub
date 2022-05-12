@@ -47,7 +47,7 @@ public class SpotifyAuthService : ISpotifyAuthService
             {
                 Scopes.UserReadPrivate,
                 Scopes.UserReadRecentlyPlayed,
-                Scopes.UserReadRecentlyPlayed
+                Scopes.UserReadPlaybackState
             },
             State = state.Value
         };
@@ -67,7 +67,7 @@ public class SpotifyAuthService : ISpotifyAuthService
 
         await _userManager.AddLoginAsync(user, new UserLoginInfo("spotify", profile.Id, profile.DisplayName));
         
-        await _userManager.AddClaimAsync(user, new Claim("spotify", profile.Id));
+        await _userManager.AddClaimAsync(user, new Claim("spotify:id", profile.Id));
         await _userManager.AddClaimAsync(user, new Claim("spotify:country", profile.Country));
         await _userManager.AddClaimsAsync(user, token.Scope.Split(' ').Select(scope => new Claim("spotify:scope", scope)));
 
