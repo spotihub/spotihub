@@ -1,6 +1,6 @@
 using SpotifyAPI.Web;
 
-namespace SpotiHub.Core.Domain.Contract.Services;
+namespace SpotiHub.Infrastructure.Contract.Services;
 
 public interface ISpotifyClientFactory
 {

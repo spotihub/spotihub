@@ -93,13 +93,6 @@ builder.Services.Configure<GitHubOptions>(options =>
     options.Name = "spotihub";
 });
 
-builder.Services.AddScoped<IGitHubClient, GitHubClient>(services =>
-{
-    var options = services.GetRequiredService<IOptions<GitHubOptions>>().Value;
-
-    return new GitHubClient(new ProductHeaderValue(options.Name));
-});
-
 builder.Services.Configure<SpotifyOptions>(options =>
 {
     options.ClientId = builder.Configuration["SPOTIFY_CLIENT_ID"];
@@ -110,6 +103,7 @@ builder.Services.Configure<SpotifyOptions>(options =>
 builder.Services.AddSingleton<SpotifyClientConfig, SpotifyClientConfig>(services => SpotifyClientConfig.CreateDefault());
 
 builder.Services.AddScoped<ISpotifyClientFactory, SpotifyClientFactory>();
+builder.Services.AddScoped<IGitHubClientFactory, GitHubClientFactory>();
 
 
 #endregion

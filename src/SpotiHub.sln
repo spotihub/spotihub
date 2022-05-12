@@ -22,6 +22,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpotiHub.Persistence", "Spo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpotiHub.Persistence.Migrations", "SpotiHub.Persistence.Migrations\SpotiHub.Persistence.Migrations.csproj", "{DD3DD843-DA16-4542-B40E-B88BBB8D9709}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{95CFE1A5-1374-4276-A90A-CFB6384EDCE5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpotiHub.Infrastructure.Contract", "SpotiHub.Infrastructure.Contract\SpotiHub.Infrastructure.Contract.csproj", "{83740149-1092-411D-861B-59255BF07A66}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpotiHub.Infrastructure", "SpotiHub.Infrastructure\SpotiHub.Infrastructure.csproj", "{35267029-11BE-41E1-AA9C-B169D4ECA5B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +42,8 @@ Global
 		{80EC0299-4543-4102-BBDF-2F3D1E50C488} = {65D6A5CC-05CF-48F7-B78C-1AB03F327647}
 		{CE710F15-BAA4-47EB-9235-7F45A5CCFFD7} = {40A9D063-A84E-4F55-8070-B47F027D3514}
 		{DD3DD843-DA16-4542-B40E-B88BBB8D9709} = {40A9D063-A84E-4F55-8070-B47F027D3514}
+		{83740149-1092-411D-861B-59255BF07A66} = {95CFE1A5-1374-4276-A90A-CFB6384EDCE5}
+		{35267029-11BE-41E1-AA9C-B169D4ECA5B1} = {95CFE1A5-1374-4276-A90A-CFB6384EDCE5}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{59F277AB-B897-4A84-A59B-AE52D13928E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -66,5 +74,13 @@ Global
 		{DD3DD843-DA16-4542-B40E-B88BBB8D9709}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD3DD843-DA16-4542-B40E-B88BBB8D9709}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD3DD843-DA16-4542-B40E-B88BBB8D9709}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83740149-1092-411D-861B-59255BF07A66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83740149-1092-411D-861B-59255BF07A66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83740149-1092-411D-861B-59255BF07A66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83740149-1092-411D-861B-59255BF07A66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35267029-11BE-41E1-AA9C-B169D4ECA5B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35267029-11BE-41E1-AA9C-B169D4ECA5B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35267029-11BE-41E1-AA9C-B169D4ECA5B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35267029-11BE-41E1-AA9C-B169D4ECA5B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

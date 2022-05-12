@@ -5,13 +5,11 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-
+    
     <ItemGroup>
-        <PackageReference Include="Incremental.Common.Sourcing.Abstractions" Version="2.1.1" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\SpotiHub.Core.Entity\SpotiHub.Core.Entity.csproj" />
+        <PackageReference Include="SpotifyAPI.Web" Version="6.2.2" />
+        <PackageReference Include="Octokit" Version="0.51.0" />
+        <PackageReference Include="Octokit.GraphQL" Version="0.1.8-beta" />
     </ItemGroup>
 
 </Project>

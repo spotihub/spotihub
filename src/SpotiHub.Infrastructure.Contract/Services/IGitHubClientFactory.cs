@@ -1,7 +1,7 @@
 using Octokit;
 using Connection = Octokit.GraphQL.Connection;
 
-namespace SpotiHub.Core.Domain.Contract.Services;
+namespace SpotiHub.Infrastructure.Contract.Services;
 
 public interface IGitHubClientFactory
 {
