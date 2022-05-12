@@ -30,7 +30,7 @@ public class GitHubClientFactory : IGitHubClientFactory
         return new Connection(new ProductHeaderValue(_options.Name), token);
     }
 
-    public async Task<GitHubClient> GetGitHubClientAsync(string? user, CancellationToken cancellationToken = default)
+    public async Task<GitHubClient> GetGitHubClientAsync(string? user = default, CancellationToken cancellationToken = default)
     {
         var client = new GitHubClient(new Octokit.ProductHeaderValue(_options.Name));
 
