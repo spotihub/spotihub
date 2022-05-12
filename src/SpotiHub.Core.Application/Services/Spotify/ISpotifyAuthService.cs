@@ -1,3 +1,6 @@
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace SpotiHub.Core.Application.Services.Spotify;
 
 public interface ISpotifyAuthService
