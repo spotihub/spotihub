@@ -1,8 +1,15 @@
+using System;
+using System.Linq;
 using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
+using Incremental.Common.Sourcing.Abstractions.Events;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SpotifyAPI.Web;
+using SpotiHub.Core.Application.Events;
+using SpotiHub.Core.Application.Events.Contracts;
 using SpotiHub.Core.Application.Options;
 using SpotiHub.Core.Domain.Contract.Services;
 using SpotiHub.Core.Domain.Contract.Services.Options;
@@ -15,14 +22,16 @@ public class SpotifyAuthService : ISpotifyAuthService
     private readonly UserManager<Entity.ApplicationUser> _userManager;
     private readonly ISpotifyClientFactory _spotifyClientFactory;
     private readonly SpotifyOptions _options;
+    private readonly IEventBus _eventBus;
 
 
     public SpotifyAuthService(ILogger<SpotifyAuthService> logger, UserManager<Entity.ApplicationUser> userManager,
-        ISpotifyClientFactory spotifyClientFactory, IOptions<SpotifyOptions> options)
+        ISpotifyClientFactory spotifyClientFactory, IOptions<SpotifyOptions> options, IEventBus eventBus)
     {
         _logger = logger;
         _userManager = userManager;
         _spotifyClientFactory = spotifyClientFactory;
+        _eventBus = eventBus;
         _options = options.Value;
     }
 
@@ -63,6 +72,8 @@ public class SpotifyAuthService : ISpotifyAuthService
         await _userManager.AddClaimAsync(user, new Claim("spotify", profile.Id));
         await _userManager.AddClaimAsync(user, new Claim("spotify:country", profile.Country));
         await _userManager.AddClaimsAsync(user, token.Scope.Split(' ').Select(scope => new Claim("spotify:scope", scope)));
+
+        await _eventBus.Publish(new SpotifyAccountLinked{ UserId = new Guid(user.Id)}, cancellationToken);
 
         return user;
     }
