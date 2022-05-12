@@ -23,9 +23,9 @@ public class AuthenticationController : ControllerBase
 
     [HttpGet]
     [Route("login")]
-    public IActionResult Login(CancellationToken cancellationToken)
+    public async Task<IActionResult> Login(CancellationToken cancellationToken)
     {
-        var destination = _applicationUserService.GetLoginUrl(cancellationToken);
+        var destination = await _applicationUserService.GetLoginUrl(cancellationToken);
 
         return Redirect(destination);
     }
