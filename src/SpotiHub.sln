@@ -28,6 +28,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpotiHub.Infrastructure.Con
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpotiHub.Infrastructure", "SpotiHub.Infrastructure\SpotiHub.Infrastructure.csproj", "{35267029-11BE-41E1-AA9C-B169D4ECA5B1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".solution-files", ".solution-files", "{838CD6D7-BB0C-451E-A040-2ADD73A699CC}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\workflows\service.yml = ..\.github\workflows\service.yml
+		Dockerfile = Dockerfile
+		.dockerignore = .dockerignore
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
