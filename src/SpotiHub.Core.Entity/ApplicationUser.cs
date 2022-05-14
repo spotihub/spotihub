@@ -4,5 +4,10 @@ namespace SpotiHub.Core.Entity;
 
 public class ApplicationUser : IdentityUser
 {
-    public Options Options { get; set; }
+    public ApplicationUser()
+    {
+        Templates = new List<Template>();
+    }
+    public Options Options { get; set; } = null!;
+    public List<Template> Templates { get; set; }
 }
