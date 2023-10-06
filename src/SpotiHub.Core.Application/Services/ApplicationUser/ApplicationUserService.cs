@@ -4,11 +4,13 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Incremental.Common.Sourcing.Abstractions.Commands;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Octokit;
+using SpotiHub.Core.Domain.Contract.ApplicationUser.Commands;
 using SpotiHub.Infrastructure.Contract.Services;
 using SpotiHub.Infrastructure.Contract.Services.Options;
 
@@ -20,13 +22,15 @@ public class ApplicationUserService : IApplicationUserService
     private readonly UserManager<Entity.ApplicationUser> _userManager;
     private readonly IGitHubClientFactory _gitHubClientFactory;
     private readonly GitHubOptions _options;
+    private readonly ICommandBus _commandBus;
 
     public ApplicationUserService(ILogger<ApplicationUserService> logger, UserManager<Entity.ApplicationUser> userManager, 
-        IGitHubClientFactory gitHubClientFactory, IOptions<GitHubOptions> options)
+        IGitHubClientFactory gitHubClientFactory, IOptions<GitHubOptions> options, ICommandBus commandBus)
     {
         _logger = logger;
         _userManager = userManager;
         _gitHubClientFactory = gitHubClientFactory;
+        _commandBus = commandBus;
         _options = options.Value;
     }
 
@@ -66,7 +70,7 @@ public class ApplicationUserService : IApplicationUserService
 
     private async Task<Entity.ApplicationUser> CreateUserAsync(int externalId, string username, string email)
     {
-        var id = await Create();
+        var id = await Create(username, email);
         
         var user = await _userManager.FindByIdAsync(id);
         
@@ -81,25 +85,20 @@ public class ApplicationUserService : IApplicationUserService
         });
         
         return user;
-        
-        async Task<string> Create()
+    }
+
+    private async Task<string> Create(string username, string email)
+    {
+        var id = Guid.NewGuid();
+
+        await _commandBus.Send(new CreateApplicationUser
         {
-            var temp = new Entity.ApplicationUser
-            {
-                Id = Guid.NewGuid().ToString(),
-                UserName = username,
-                Email = email,
-                Options = new Entity.Options()
-            };
-            var result = await _userManager.CreateAsync(temp);
-
-            if (!result.Succeeded)
-            {
-                throw new Exception();
-            }
-
-            return temp.Id;
-        }
+            ApplicationUserId = id,
+            Username = username,
+            Email = email
+        });
+        
+        return id.ToString();
     }
 
     private async Task StoreOrReplaceGitHubScopesAsync(Entity.ApplicationUser user, IEnumerable<string> scopes)
