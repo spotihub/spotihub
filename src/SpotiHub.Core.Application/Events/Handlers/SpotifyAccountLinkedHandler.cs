@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Incremental.Common.Sourcing.Abstractions.Events;
+using MassTransit;
 using SpotiHub.Core.Application.Events.Contracts;
 using SpotiHub.Core.Application.Services.Scheduler;
 
@@ -15,8 +16,8 @@ public class SpotifyAccountLinkedHandler : EventHandler<SpotifyAccountLinked>
         _scheduler = scheduler;
     }
 
-    public override async Task Handle(SpotifyAccountLinked @event, CancellationToken cancellationToken)
+    public override async Task Consume(ConsumeContext<SpotifyAccountLinked> context)
     {
-        await _scheduler.Schedule(@event.UserId.ToString(), cancellationToken);
+        await _scheduler.Schedule(context.Message.UserId.ToString(), context.CancellationToken);
     }
 }

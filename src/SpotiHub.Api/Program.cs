@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
+using Quartz.AspNetCore;
 using SpotifyAPI.Web;
 using SpotiHub.Core.Application.Services;
 using SpotiHub.Core.Application.Services.ApplicationUser;
@@ -28,7 +29,7 @@ builder.Host.UseCommonLogging();
 builder.Host.UseLamar();
 
 builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSourcing(AppDomain.CurrentDomain.GetAssemblies());
+// builder.Services.AddSourcing();
 
 #region API Configuration
 

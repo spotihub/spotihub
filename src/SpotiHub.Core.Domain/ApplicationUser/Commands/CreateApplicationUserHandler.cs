@@ -1,6 +1,6 @@
 using Incremental.Common.Sourcing.Abstractions.Commands;
 using Incremental.Common.Sourcing.Abstractions.Events;
-using MediatR;
+using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using SpotiHub.Core.Domain.Contract.ApplicationUser.Commands;
 using SpotiHub.Core.Domain.Contract.ApplicationUser.Events;
@@ -21,16 +21,17 @@ public class CreateApplicationUserHandler : CommandHandler<CreateApplicationUser
         _templateFinder = templateFinder;
     }
 
-    public override async Task<Unit> Handle(CreateApplicationUser command, CancellationToken cancellationToken)
+    public override async Task Consume(ConsumeContext<CreateApplicationUser> context)
     {
+
         var user = new Entity.ApplicationUser
         {
-            Id = command.ApplicationUserId.ToString(),
-            UserName = command.Username,
-            Email = command.Email,
+            Id = context.Message.ApplicationUserId.ToString(),
+            UserName = context.Message.Username,
+            Email = context.Message.Email,
             Options = new Entity.Options
             {
-                Template = await _templateFinder.GetRandomDefaultTemplate(cancellationToken)
+                Template = await _templateFinder.GetRandomDefaultTemplate(context.CancellationToken)
             }
         }; 
         
@@ -38,9 +39,7 @@ public class CreateApplicationUserHandler : CommandHandler<CreateApplicationUser
 
         await _eventBus.Publish(new ApplicationUserCreated()
         {
-            ApplicationUserId = command.ApplicationUserId
-        }, cancellationToken);
-        
-        return Unit.Value;
+            ApplicationUserId = context.Message.ApplicationUserId
+        }, context.CancellationToken);
     }
 }
