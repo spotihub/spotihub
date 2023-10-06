@@ -1,53 +1,54 @@
-name: Build & Publish
+name: Build, Test, and Publish (Service)
 
 on:
+  push:
+    branches: [ main ]
   pull_request:
     branches: [ main ]
-  push:
-    branches: [ main, develop ]
-  release:
-    types:
-      - published
 env:
-  # Stop wasting time caching packages
+  # Stop wasting time caching packages / Disable sending usage data to Microsoft
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-  # Disable sending usage data to Microsoft
+  DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
+  # GitHub Packages Feed settings
+#  GITHUB_FEED: https://nuget.pkg.github.com/incrementalfun/
+#  NUGET_AUTH_TOKEN: ${{ secrets.GPM_TOKEN }}
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ ubuntu-latest ]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup .NET
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '6.0.x'
+        uses: actions/setup-dotnet@v3
+#        with:
+#          source-url: ${{ env.GITHUB_FEED }}/index.json
       - name: Restore
-        working-directory: ./src  
+        working-directory: ./src
         run: dotnet restore
       - name: Build
         working-directory: ./src
         run: dotnet build --no-restore
   test:
     needs: build
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ ubuntu-latest ]
+    runs-on: ubuntu-latest
+    env:
+      ASPNETCORE_ENVIRONMENT: 'Workflow'
+      AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup .NET
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '6.0.x'
+        uses: actions/setup-dotnet@v3
+#        with:
+#          source-url: ${{ env.GITHUB_FEED }}/index.json
+      - name: Restore
+        working-directory: ./src
+        run: dotnet restore
       - name: Test
         working-directory: ./src
-        run: dotnet test --verbosity normal
+        run: dotnet test --verbosity normal --no-restore
   publish:
     needs: test
     runs-on: ubuntu-latest
@@ -59,8 +60,8 @@ jobs:
       contents: read
       packages: write
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Log in to the Container registry
         uses: docker/login-action@v1
         with:
@@ -74,11 +75,15 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_REPO }}/${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
+            type=ref,event=pr
             type=semver,pattern={{version}}
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: ./src/
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+#          build-args: |
+#            GITHUB_USER=spotihubbot
+#            GITHUB_TOKEN=${{ secrets.GPM_TOKEN }}
